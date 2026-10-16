@@ -1,0 +1,27 @@
+{
+  "version": "0.1.5",
+  "baseUrl": "https://github.com/Narindra0/LocalSound-Share/releases/download/v0.1.5/",
+  "editions": [
+    {
+      "id": "host",
+      "file": "LocalSound-Share-0.1.5-Windows-x64.exe",
+      "installedName": "LocalSound Hote.exe",
+      "bytes": 99266811,
+      "sha256": "675bfb47891c6c2e5dd7f4e51451452abbc7fbac98f1365aef98e1ea33e7d43a"
+    },
+    {
+      "id": "lite",
+      "file": "LocalSound-Auditeur-Leger-0.1.5-Windows-x64.exe",
+      "installedName": "LocalSound Auditeur Leger.exe",
+      "bytes": 6528000,
+      "sha256": "8316ae59b03cf3428367edd0bf7ffe89f8ad403799cd68991ee6ff2f1cec3b69"
+    },
+    {
+      "id": "classic",
+      "file": "LocalSound-Auditeur-0.1.5-Windows-x64.exe",
+      "installedName": "LocalSound Auditeur.exe",
+      "bytes": 96492555,
+      "sha256": "b567b2187c65aa7725333f98583491ad3134c92a5ef4faad18a7534391a95326"
+    }
+  ]
+}

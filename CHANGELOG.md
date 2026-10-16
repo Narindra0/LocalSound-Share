@@ -2,6 +2,7 @@
 
 ## À venir
 
+- Setup Windows en ligne : choix des éditions, acceptation des conditions, téléchargements vérifiés, raccourcis et désinstallation pour le compte courant.
 - Tests classés par usage, diagnostics déplacés hors de la racine et références de conception regroupées dans `docs/design/`.
 - Documentation réorganisée pour GitHub : installation, développement, compilation, publication et contribution.
 - Exclusions Git, règles de fins de ligne, modèles d’issues/pull requests et CI Windows.

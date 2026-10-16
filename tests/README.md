@@ -38,11 +38,14 @@ Après compilation des éditions correspondantes :
 node tests/e2e/portable-browser.js
 node tests/e2e/portable-listener.js
 node tests/e2e/lite-browser.js
+node tests/e2e/setup-install.js
 ```
 
 Les profils, captures et fichiers produits vont dans `artifacts/`, ignoré par Git. `desktop-live-browser.js` contacte réellement YouTube ; les autres scénarios peuvent simuler le contenu ou les sources selon le test. Les essais de capture réelle peuvent utiliser la sortie audio du PC.
 
 ## Diagnostics manuels
+
+Le [test du setup](../docs/INSTALLER.md#vérifier) télécharge les véritables applications et vérifie installation, ajout d’éditions et désinstallation dans un dossier de test. Il ne se lance pas en CI.
 
 ```powershell
 node tests/manual/mp3.js      # Vérifie l’encodeur MP3

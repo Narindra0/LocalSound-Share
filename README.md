@@ -18,6 +18,8 @@ Partagez la musique d’un PC Windows avec les appareils du même réseau local.
 
 ## Choisir une édition Windows
 
+**Installation guidée :** téléchargez `LocalSound-Setup-0.1.5-Windows-x64.exe` dans les [Releases](https://github.com/Narindra0/LocalSound-Share/releases/latest). Ce petit setup en ligne d’environ **2,28 Mo** présente les conditions et permet de choisir Hôte, Auditeur Léger, Auditeur classique ou plusieurs éditions. Il crée les raccourcis et une entrée de désinstallation Windows, sans demander les droits administrateur. Internet est nécessaire pour télécharger les éditions choisies. Les EXE portables restent disponibles séparément.
+
 | Édition | Usage | Taille indicative de l’EXE 0.1.5 |
 | --- | --- | ---: |
 | Hôte | Diffuser et utiliser le navigateur YouTube intégré | 99 Mo |
@@ -96,6 +98,7 @@ npm start
 npm run build:exe             # Hôte Electron
 npm run build:listener        # Auditeur classique Electron
 npm run build:listener:lite   # Auditeur Léger WebView2
+npm run build:setup           # Setup en ligne, avec Inno Setup
 ~~~
 
 Les résultats sont écrits dans **release/**, dossier ignoré par Git. La compilation légère télécharge le SDK officiel WebView2 épinglé à la version 1.0.4258.31 et utilise le compilateur .NET Framework de Windows. Voir [Développement et compilation](docs/DEVELOPMENT.md) et [Publication sur GitHub](docs/PUBLISHING.md).
@@ -112,6 +115,7 @@ Les résultats sont écrits dans **release/**, dossier ignoré par Git. La compi
 
 - [Développement, architecture et tests](docs/DEVELOPMENT.md)
 - [Organisation et exécution des tests](tests/README.md)
+- [Installateur Windows et compilation du setup](docs/INSTALLER.md)
 - [Préparer le dépôt et publier une version](docs/PUBLISHING.md)
 - [Historique des versions](CHANGELOG.md)
 - [Contribuer](CONTRIBUTING.md)

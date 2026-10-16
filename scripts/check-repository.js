@@ -30,7 +30,8 @@ try {
   const required = [
     '.gitignore', '.gitattributes', '.editorconfig', '.nvmrc', 'README.md', 'LICENSE.txt',
     'package.json', 'package-lock.json', 'CONTRIBUTING.md', 'SECURITY.md', 'CHANGELOG.md',
-    'docs/DEVELOPMENT.md', 'docs/PUBLISHING.md', '.github/workflows/ci.yml',
+    'docs/DEVELOPMENT.md', 'docs/PUBLISHING.md', 'docs/INSTALLER.md', '.github/workflows/ci.yml',
+    'installer/LocalSound.iss', 'installer/payloads.json', 'scripts/build-setup.js',
     'server.js', 'opus-stream.js', 'desktop/main.js', 'desktop/listener-main.js',
     'desktop/lite/Launcher.cs', 'desktop/lite/ListenerForm.cs', 'desktop/lite/bridge.js',
     'scripts/build-lite.ps1', 'scripts/third-party-notices.js', 'scripts/check-repository.js',

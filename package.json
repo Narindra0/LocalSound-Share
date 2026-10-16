@@ -15,6 +15,7 @@
     "desktop:listener": "node scripts/listener.js",
     "build:listener": "npm run notices && node scripts/prepare-listener.js && electron-builder --config electron-builder-listener.yml --win portable --x64",
     "build:listener:lite": "npm run notices && powershell -NoProfile -ExecutionPolicy Bypass -File scripts/build-lite.ps1",
+    "build:setup": "node scripts/build-setup.js",
     "check:repo": "node scripts/check-repository.js",
     "setup:desktop": "node node_modules/electron/install.js"
   },

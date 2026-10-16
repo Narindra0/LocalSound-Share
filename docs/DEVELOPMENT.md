@@ -28,6 +28,7 @@ npm test
 | `desktop/` | Applications Electron, navigateur YouTube, mini-fenêtres et relais auditeur |
 | `desktop/lite/` | Application WinForms/WebView2 légère et son pont limité |
 | `scripts/` | Lancement, notices, préparation et compilation |
+| `installer/` | Assistant Inno Setup et manifeste des applications publiées |
 | `tests/node/` | Tests automatisés Node : API, signal audio et horloges |
 | `tests/e2e/` | Essais navigateur et applications Windows |
 | `tests/helpers/`, `tests/fixtures/` | Simulations et données synthétiques partagées |
@@ -92,6 +93,8 @@ node tests/e2e/lite-browser.js
 Le lecteur léger doit être compilé avant `tests/e2e/lite-browser.js`, et WebView2 doit être disponible. Les simulations et tests de planification ne remplacent pas une écoute sur plusieurs appareils et une mesure acoustique si un alignement précis est requis.
 
 ## Compiler sous Windows
+
+Le [guide de l’installateur](INSTALLER.md) décrit également `npm run build:setup`, qui produit le petit setup en ligne à partir des applications déjà publiées.
 
 ```powershell
 npm run build:exe

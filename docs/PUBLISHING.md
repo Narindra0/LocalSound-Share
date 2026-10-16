@@ -85,6 +85,8 @@ Mentionner dans les instructions : Windows x64, absence de signature numérique,
 
 Les workflows fournis exécutent les contrôles et les tests ; ils ne publient pas de Release. Consulter également la [documentation officielle des Releases](https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository).
 
+Le [setup en ligne](INSTALLER.md) se compile après publication et vérification des EXE auxquels son manifeste fait référence. Joindre son EXE, son fichier `.sha256` et ses instructions à la release. Le tag `setup-v0.1.5` identifie les sources de cet assistant ; les EXE des applications restent ceux du tag `v0.1.5`.
+
 ## Présentation du dépôt
 
 Description suggérée : « Partage audio local synchronisé pour Windows, avec YouTube intégré, lecteurs personnalisables et auditeur léger WebView2. »
