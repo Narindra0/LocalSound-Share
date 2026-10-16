@@ -1,0 +1,20 @@
+LocalSound Share — Version 0.1.5
+Copyright © 2026 Ranjalahy Narindra.
+
+Projet personnel gratuit édité à Madagascar.
+Contact : ranjalahy.narindraa@gmail.com — 0328814081
+Portfolio : https://narindraportfolio.netlify.app/
+
+L'utilisation personnelle et licite de cette version est autorisée gratuitement.
+Les éléments originaux de l'application et son identité visuelle restent attribués
+à leur créateur. Pour d'autres permissions, contacter le créateur.
+
+Les composants tiers conservent leurs licences et leurs notices. La présente
+notice ne limite pas les droits accordés par ces licences, notamment ceux de
+modification, de remplacement et de débogage prévus pour lamejs sous LGPL-3.0.
+Les notices, les textes des licences et les sources de lamejs sont disponibles
+dans l'application, rubrique « À propos · CGU · Confidentialité ».
+
+Conditions d'utilisation et confidentialité : public/about.html dans les sources,
+et rubrique « À propos · CGU · Confidentialité » dans le logiciel distribué.
+Les dispositions impératives de la législation applicable restent réservées.

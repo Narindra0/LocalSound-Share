@@ -1,0 +1,30 @@
+appId: mg.narindra.localsoundshare
+productName: LocalSound Share
+copyright: Copyright © 2026 Ranjalahy Narindra
+directories:
+  output: release
+  buildResources: public/branding
+extraMetadata:
+  main: desktop/main.js
+asar: true
+electronLanguages: [fr, en-US]
+asarUnpack:
+  - "**/*.node"
+npmRebuild: false
+files:
+  - "*.js"
+  - "desktop/**/*"
+  - "public/**/*"
+  - "scripts/media-info.ps1"
+  - "package.json"
+  - "LICENSE.txt"
+  - "!test_*.js"
+win:
+  icon: public/branding/icon.ico
+  target:
+    - target: portable
+      arch: [x64]
+  requestedExecutionLevel: asInvoker
+  artifactName: LocalSound-Share-${version}-Windows-x64.exe
+portable:
+  requestExecutionLevel: user

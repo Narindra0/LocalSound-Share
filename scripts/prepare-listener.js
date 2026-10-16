@@ -1,0 +1,12 @@
+'use strict';
+const fs = require('node:fs'), path = require('node:path');
+const root = path.resolve(__dirname, '..'), stage = path.join(root, 'artifacts/listener-app');
+const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
+for (const dir of ['desktop', 'public', 'node_modules']) fs.mkdirSync(path.join(stage, dir), { recursive:true });
+for (const name of ['listener-main.js', 'listener-preload.js', 'listener-address.js', 'listener-server.js', 'mini-window.js']) fs.copyFileSync(path.join(root, 'desktop', name), path.join(stage, 'desktop', name));
+fs.cpSync(path.join(root, 'public'), path.join(stage, 'public'), { recursive:true });
+fs.cpSync(path.join(root, 'node_modules/ws'), path.join(stage, 'node_modules/ws'), { recursive:true });
+const ws = JSON.parse(fs.readFileSync(path.join(root, 'node_modules/ws/package.json'), 'utf8'));
+fs.writeFileSync(path.join(stage, 'package.json'), JSON.stringify({ name:'localsound-auditeur', productName:'LocalSound Auditeur', version:pkg.version, description:'Lecteur LocalSound pour les auditeurs du réseau local', main:'desktop/listener-main.js', author:pkg.author, homepage:pkg.homepage, license:pkg.license, dependencies:{ ws:ws.version } }, null, 2));
+fs.copyFileSync(path.join(root, 'LICENSE.txt'), path.join(stage, 'LICENSE.txt'));
+console.log('Édition auditeur préparée, sans moteur de capture ni serveur de diffusion.');

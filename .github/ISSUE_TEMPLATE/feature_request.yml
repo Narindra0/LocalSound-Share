@@ -1,0 +1,17 @@
+name: Proposer une amélioration
+description: Décrire un usage et le résultat souhaité
+title: "[Idée] "
+body:
+  - type: textarea
+    id: need
+    attributes:
+      label: Quel usage voulez-vous améliorer ?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Comportement souhaité
+      description: Ajouter les contraintes utiles et, si besoin, une capture ou un exemple.
+    validations:
+      required: true

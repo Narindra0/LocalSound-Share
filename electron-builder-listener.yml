@@ -1,0 +1,25 @@
+appId: mg.narindra.localsoundauditeur
+productName: LocalSound Auditeur
+copyright: Copyright © 2026 Ranjalahy Narindra
+electronVersion: 44.8.0
+directories:
+  app: artifacts/listener-app
+  output: release/auditeur
+  buildResources: public/branding
+asar: true
+electronLanguages: [fr, en-US]
+npmRebuild: false
+files:
+  - "desktop/**/*"
+  - "public/**/*"
+  - "package.json"
+  - "LICENSE.txt"
+win:
+  icon: public/branding/icon.ico
+  target:
+    - target: portable
+      arch: [x64]
+  requestedExecutionLevel: asInvoker
+  artifactName: LocalSound-Auditeur-${version}-Windows-x64.exe
+portable:
+  requestExecutionLevel: user

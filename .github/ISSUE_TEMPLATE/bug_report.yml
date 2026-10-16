@@ -1,0 +1,51 @@
+name: Signaler un bug
+description: Lecture audio, connexion, interface ou application Windows
+title: "[Bug] "
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Version de LocalSound
+      placeholder: "Exemple : 0.1.5"
+    validations:
+      required: true
+  - type: dropdown
+    id: edition
+    attributes:
+      label: Édition concernée
+      options:
+        - Hôte Electron
+        - Auditeur Léger WebView2
+        - Auditeur classique Electron
+        - Navigateur web
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Système et navigateur
+      placeholder: Windows 11, Edge ; ou Android, Chrome…
+    validations:
+      required: true
+  - type: dropdown
+    id: source
+    attributes:
+      label: Source audio
+      options:
+        - YouTube intégré
+        - Partage d’onglet
+        - Fichier musical
+        - Son système Windows
+        - Sans rapport avec l’audio
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Étapes, résultat obtenu et résultat attendu
+      description: Pour un décalage, préciser les appareils, Wi-Fi ou Ethernet, sortie intégrée/filaire/Bluetooth et qualité audio sélectionnée.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Journaux ou capture d’écran utiles
+      description: Retirer les données personnelles, cookies, mots de passe et enregistrements privés.
