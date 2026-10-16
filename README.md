@@ -111,6 +111,7 @@ Les résultats sont écrits dans **release/**, dossier ignoré par Git. La compi
 ## Documentation
 
 - [Développement, architecture et tests](docs/DEVELOPMENT.md)
+- [Organisation et exécution des tests](tests/README.md)
 - [Préparer le dépôt et publier une version](docs/PUBLISHING.md)
 - [Historique des versions](CHANGELOG.md)
 - [Contribuer](CONTRIBUTING.md)

@@ -2,6 +2,7 @@
 
 ## À venir
 
+- Tests classés par usage, diagnostics déplacés hors de la racine et références de conception regroupées dans `docs/design/`.
 - Documentation réorganisée pour GitHub : installation, développement, compilation, publication et contribution.
 - Exclusions Git, règles de fins de ligne, modèles d’issues/pull requests et CI Windows.
 - Contrôle des fichiers destinés au dépôt avant publication.

@@ -1,0 +1,37 @@
+'use strict';
+const { test } = require('node:test');
+const assert = require('node:assert/strict');
+const { createApp } = require('../../server');
+const { readFileInfo } = require('../../file-info');
+const { createArtworkStore } = require('../../artwork');
+const { coverPng, taggedMp3 } = require('../helpers/media-fixture');
+test('pochettes : lecture réelle des tags ID3 et de la couverture embarquée', async () => {
+  const info=await readFileInfo(taggedMp3());
+  assert.equal(info.title,'Le salon en couleurs'); assert.equal(info.artist,'LocalSound Ensemble');
+  assert.deepEqual(Buffer.from(info.artwork), coverPng());
+  assert.equal(await readFileInfo(Buffer.from('Fichier sans métadonnées')),null);
+});
+test('pochettes : formats limités, cache local et restauration automatique', async t => {
+  let update;
+  const app=createApp({mediaInfo:{start(cb){update=cb},close(){}}});
+  await new Promise(resolve=>app.server.listen(0,'127.0.0.1',resolve));t.after(()=>app.close());
+  const base='http://127.0.0.1:'+app.server.address().port, png=coverPng();
+  update({available:true,sessions:[{title:'Titre Windows',artist:'Artiste',appId:'msedge.exe',playing:true,artworkBase64:png.toString('base64')}]});
+  const original=app.status().nowPlaying.artwork;
+  assert.match(original,/^\/api\/artwork\/[a-f0-9]{64}$/);
+  const art=await fetch(base+original);assert.equal(art.headers.get('content-type'),'image/png');assert.deepEqual(Buffer.from(await art.arrayBuffer()),png);
+  assert.ok(!JSON.stringify(app.status()).includes('artworkBase64'));
+  const headers={'Content-Type':'application/octet-stream','X-Source-Generation':String(app.status().generation)};
+  assert.equal((await fetch(base+'/api/artwork',{method:'PUT',headers,body:Buffer.from('<svg onload="alert(1)"></svg>')})).status,400);
+  assert.equal((await fetch(base+'/api/artwork',{method:'PUT',headers:{...headers,Origin:'https://example.com'},body:png})).status,403);
+  assert.equal((await fetch(base+'/api/artwork',{method:'PUT',headers,body:png})).status,200);
+  await fetch(base+'/api/now-playing',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode:'manual',title:'Titre corrigé',artist:'',generation:app.status().generation})});
+  assert.equal(app.status().nowPlaying.artwork,original,'Une correction de titre conserve la pochette');
+  await fetch(base+'/api/artwork',{method:'DELETE',headers});assert.equal(app.status().nowPlaying.artwork,original);
+  const info=await fetch(base+'/api/track-info',{method:'POST',headers:{'Content-Type':'application/octet-stream'},body:taggedMp3()}).then(r=>r.json());
+  await fetch(base+'/api/track',{method:'PUT',headers:{'Content-Type':'application/octet-stream','X-Track-Name':'fallback.mp3','X-Track-Info':info.token},body:Buffer.alloc(1920)});
+  assert.equal(app.status().trackName,'Le salon en couleurs');assert.equal(app.status().nowPlaying.artwork,original);
+  assert.equal((await fetch(base+'/api/artwork',{method:'DELETE',headers})).status,409);
+  assert.equal((await fetch(base+'/api/share-code?address='+encodeURIComponent('https://example.com'))).status,400);
+  const store=createArtworkStore();assert.equal(store.add(Buffer.from('<svg/>')),null);assert.equal(store.add(Buffer.alloc(2*1024*1024+1)),null);
+});

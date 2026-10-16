@@ -9,7 +9,7 @@
   "scripts": {
     "start": "node server.js",
     "desktop": "node scripts/desktop.js",
-    "test": "node --test tests/*.test.js",
+    "test": "node --test tests/node/*.test.js",
     "notices": "node scripts/third-party-notices.js",
     "build:exe": "npm run notices && electron-builder --win portable --x64",
     "desktop:listener": "node scripts/listener.js",

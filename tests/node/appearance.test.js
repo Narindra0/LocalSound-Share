@@ -1,0 +1,36 @@
+'use strict';
+const { test }=require('node:test');
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const os=require('node:os');
+const path=require('node:path');
+const { once }=require('node:events');
+const { WebSocket }=require('ws');
+const { createApp }=require('../../server');
+const { createAppearanceStore,validAppearance }=require('../../appearance-config');
+test('ambiances : palettes validées, sauvegarde réelle et restauration au redémarrage',async t=>{
+  const directory=fs.mkdtempSync(path.join(os.tmpdir(),'localsound-appearance-')),file=path.join(directory,'appearance.json');
+  t.after(()=>{if(fs.existsSync(file))fs.unlinkSync(file);fs.rmdirSync(directory)});
+  const store=createAppearanceStore(file);assert.deepEqual(store.load(),{theme:'vinyl',palette:'terracotta'});
+  for(const theme of ['vinyl','cassette','cd','reel','mp3','radio'])for(const palette of ['terracotta','forest','ocean','plum'])assert.deepEqual(validAppearance({theme,palette}),{theme,palette});
+  assert.equal(validAppearance({theme:'evil',palette:'forest'}),null);
+  const app=createApp({appearanceStore:store});await new Promise(resolve=>app.server.listen(0,'0.0.0.0',resolve));t.after(()=>app.close());
+  const base='http://127.0.0.1:'+app.server.address().port,body={theme:'cassette',palette:'forest'},generation=app.status().generation;
+  const post=(value,origin)=>fetch(base+'/api/appearance',{method:'POST',headers:{'Content-Type':'application/json',...(origin?{Origin:origin}:{})},body:JSON.stringify(value)});
+  assert.equal((await post(body,'https://example.com')).status,403);
+  assert.equal((await post({theme:'<script>',palette:'forest'})).status,400);
+  const lan=app.status().urls[0];if(lan)assert.equal((await fetch(lan+'/api/appearance',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})).status,403);
+  const ws=new WebSocket(base.replace('http:','ws:'));t.after(()=>ws.terminate());await once(ws,'open');
+  const delivered=new Promise(resolve=>ws.on('message',data=>{const value=JSON.parse(data);if(value.type==='state'&&value.appearance.theme==='cassette')resolve(value)}));
+  assert.equal((await post(body)).status,200);assert.deepEqual((await delivered).appearance,body);
+  assert.equal(app.status().generation,generation);assert.deepEqual(store.load(),body);
+  await app.close();const restored=createApp({appearanceStore:createAppearanceStore(file)});
+  assert.deepEqual(restored.status().appearance,body);await restored.close();
+  fs.writeFileSync(file,'{invalid');assert.deepEqual(store.load(),{theme:'vinyl',palette:'terracotta'});
+});
+test('ambiances : un échec de sauvegarde conserve le thème courant',async t=>{
+  const app=createApp({appearanceStore:{load(){return {theme:'cd',palette:'ocean'}},async save(){throw new Error('disk unavailable')}}});
+  await new Promise(resolve=>app.server.listen(0,'127.0.0.1',resolve));t.after(()=>app.close());
+  const response=await fetch('http://127.0.0.1:'+app.server.address().port+'/api/appearance',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({theme:'cassette',palette:'forest'})});
+  assert.equal(response.status,500);assert.deepEqual(app.status().appearance,{theme:'cd',palette:'ocean'});
+});

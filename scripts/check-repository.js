@@ -36,7 +36,7 @@ try {
     'scripts/build-lite.ps1', 'scripts/third-party-notices.js', 'scripts/check-repository.js',
     'public/client.js', 'public/opus-player.js', 'public/opus-decode-worker.js',
     'public/branding/logo.svg', 'public/branding/icon.ico', 'public/licenses/LGPL-3.0.txt',
-    'public/licenses/GPL-3.0.txt', 'public/licenses/wasm-audio-decoders-MIT.txt', 'public/licenses/WebView2-SDK.txt', 'test_tone.wav'
+    'public/licenses/GPL-3.0.txt', 'public/licenses/wasm-audio-decoders-MIT.txt', 'public/licenses/WebView2-SDK.txt', 'tests/fixtures/test-tone.wav'
   ];
   const selection = new Set(candidates);
   for (const file of required) if (!selection.has(file) || !fs.existsSync(path.join(root,file))) errors.push('Source nécessaire absente ou ignorée : ' + file);

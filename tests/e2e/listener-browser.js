@@ -1,0 +1,58 @@
+'use strict';
+const assert = require('node:assert/strict');
+const path = require('node:path'), fs = require('node:fs');
+const { _electron } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
+const { createApp } = require('../../server');
+const { coverPng } = require('../helpers/media-fixture');
+class Capture { startSystemAudio(cb) { this.timer = setInterval(() => cb(Buffer.alloc(1920, 1)), 10); } stop() { clearInterval(this.timer); } }
+(async () => {
+  let desktop, update;
+  const host = createApp({ Capture, mediaInfo:{ start(cb) { update = cb; }, close() {} } });
+  try {
+    await new Promise(resolve => host.server.listen(0, '127.0.0.1', resolve)); host.control('play');
+    const env = { ...process.env, LOCALSOUND_DESKTOP_TEST:'1', LOCALSOUND_LISTENER_PORT:'0', LOCALSOUND_DESKTOP_PROFILE:path.resolve('artifacts/listener-test-profile') }; delete env.ELECTRON_RUN_AS_NODE;
+    const exe = process.env.LOCALSOUND_LISTENER_EXE;
+    desktop = await _electron.launch({ executablePath:exe ? path.resolve(exe) : require('electron'), args:exe ? [] : [path.resolve('desktop/listener-main.js')], env });
+    const page = await desktop.firstWindow(), errors = [];
+    page.on('pageerror', err => errors.push(err.message)); await page.waitForSelector('#joinRoom');
+    await page.locator('#openJoinLegal').click();
+    const joinAbout = page.frameLocator('#joinLegal iframe');
+    await joinAbout.locator('#presentation').waitFor();
+    await joinAbout.locator('.about-navigation a[href="#createur"]').click();
+    await joinAbout.locator('#createur h2').waitFor();
+    await joinAbout.locator('.about-navigation a').first().press('Escape');
+    await page.waitForFunction(() => !document.getElementById('joinLegal').open);
+    await page.locator('#roomAddress').fill('http://127.0.0.1:1'); await page.locator('#joinRoom').click(); await page.waitForFunction(() => !document.getElementById('joinRoom').disabled);
+    assert.match(await page.locator('#joinStatus').textContent(), /injoignable/);
+    await page.locator('#roomAddress').fill('http://127.0.0.1:' + host.server.address().port); await page.locator('#joinRoom').click();
+    await page.waitForSelector('#listenBtn'); await page.waitForFunction(() => document.getElementById('connStatus').textContent === 'Connecté');
+    update({ available:true, sessions:[{ title:'Le morceau des auditeurs', artist:'Ensemble', playing:true, appId:'msedge.exe', artworkBase64:coverPng().toString('base64') }] });
+    await page.locator('#listenBtn').click(); await page.waitForFunction(() => document.body.classList.contains('is-listening'));
+    await page.waitForFunction(() => transportCodec === 'opus' && opusDecoder.decodedFrames > 5);
+    const count = host.status().clients;
+    await page.locator('#openAboutHeader').click();
+    const about = page.frameLocator('#aboutModal iframe');
+    await about.locator('#presentation').waitFor();
+    await about.locator('.about-navigation a[href="#licences"]').click();
+    await about.frameLocator('iframe').locator('.license-entry').first().waitFor();
+    assert.equal(host.status().playing, true); assert.equal(host.status().clients, count);
+    assert.equal(await page.evaluate(() => document.body.classList.contains('is-listening')), true);
+    await page.locator('#aboutModal .close-dialog').click();
+    const miniPromise = desktop.waitForEvent('window'); await page.locator('#openMiniPlayer').click(); const mini = await miniPromise;
+    await mini.waitForSelector('.mini-player'); await mini.waitForFunction(() => document.querySelector('[data-mini-title]').textContent === 'Le morceau des auditeurs');
+    const options = await desktop.evaluate(({ BrowserWindow }) => { const win = BrowserWindow.getAllWindows().find(w => w.webContents.getTitle().includes('Mini-lecteur')); return { size:win.getContentSize(), resize:win.isResizable(), maximize:win.isMaximizable(), fullscreen:win.isFullScreenable(), top:win.isAlwaysOnTop() }; });
+    assert.deepEqual(options.size, [320, 216]); assert.equal(options.resize, false); assert.equal(options.maximize, false); assert.equal(options.fullscreen, false); assert.equal(options.top, true);
+    assert.equal(await mini.evaluate(() => document.documentElement.scrollHeight <= innerHeight && document.documentElement.scrollWidth <= innerWidth), true, 'Le mini-lecteur ne défile pas');
+    assert.equal(host.status().clients, count);
+    await mini.locator('input').fill('23'); await mini.locator('input').dispatchEvent('input'); assert.equal(await page.locator('#volume').inputValue(), '23');
+    await mini.locator('[data-proxy=listenBtn]').click(); await page.waitForFunction(() => !document.body.classList.contains('is-joined')); assert.equal(host.status().playing, true);
+    await mini.locator('[data-proxy=listenBtn]').click(); await page.waitForFunction(() => document.body.classList.contains('is-listening'));
+    const png = await desktop.evaluate(async ({ BrowserWindow }) => (await BrowserWindow.getAllWindows().find(w => w.webContents.getTitle().includes('Mini-lecteur')).capturePage(undefined, { stayHidden:true, stayAwake:true })).toPNG().toString('base64'));
+    fs.writeFileSync(path.resolve('artifacts/interface/listener-mini-native.png'), Buffer.from(png, 'base64'));
+    await mini.locator('.mini-return').click(); await page.waitForFunction(() => document.getElementById('openMiniPlayer').getAttribute('aria-expanded') === 'false');
+    await page.locator('#changeListenerRoom').click(); await page.waitForSelector('#joinRoom');
+    await page.waitForFunction(() => document.getElementById('roomAddress').value.includes('127.0.0.1'));
+    assert.equal(host.status().playing, true); assert.deepEqual(errors, []);
+    console.log('Auditeur : connexion, erreurs lisibles, audio, pochette, mini 320×216 fixe et au premier plan, volume, pause locale, changement de salon — OK');
+  } finally { await desktop?.close(); await host.close(); }
+})().catch(err => { console.error(err); process.exitCode = 1; });

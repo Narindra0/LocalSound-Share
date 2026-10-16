@@ -30,7 +30,7 @@ Les tests de capture réelle peuvent lire le son du PC. Les lancer volontairemen
 
 Conserver les sources, `package-lock.json`, les configurations, les licences statiques et les fichiers de marque sous `public/branding/`.
 
-Les dépendances, SDK téléchargés, profils, préférences, journaux, fichiers musicaux et exécutables sont ignorés. `test_tone.wav` est une exception volontaire : c’est le signal synthétique utilisé par `test_capture.js`. Les fichiers produits par `npm run notices` sont régénérés après installation.
+Les dépendances, SDK téléchargés, profils, préférences, journaux, fichiers musicaux et exécutables sont ignorés. `tests/fixtures/test-tone.wav` est une exception volontaire : c’est le signal synthétique utilisé par `tests/manual/capture.js`. Les fichiers produits par `npm run notices` sont régénérés après installation.
 
 Avant une contribution ou une publication :
 

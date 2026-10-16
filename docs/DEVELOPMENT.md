@@ -28,12 +28,16 @@ npm test
 | `desktop/` | Applications Electron, navigateur YouTube, mini-fenêtres et relais auditeur |
 | `desktop/lite/` | Application WinForms/WebView2 légère et son pont limité |
 | `scripts/` | Lancement, notices, préparation et compilation |
-| `tests/` | API, signal audio, horloges, navigateurs et applications Windows |
+| `tests/node/` | Tests automatisés Node : API, signal audio et horloges |
+| `tests/e2e/` | Essais navigateur et applications Windows |
+| `tests/helpers/`, `tests/fixtures/` | Simulations et données synthétiques partagées |
+| `tests/manual/` | Diagnostics volontaires de capture et de connexion |
+| `docs/design/` | Références et maquette initiales |
 | `artifacts/` | Profils de test, SDK téléchargés, captures et paquets intermédiaires ; ignoré |
 | `release/` | Exécutables et livrables ; ignoré |
 | `data/` | Préférences de session en développement ; ignoré |
 
-Les fichiers `design.md`, `cahier_des_charges_localsound_share.md` et `localsound_share_light_mode.html` sont des références de conception ; le README décrit le fonctionnement actuel.
+Les anciennes références de conception sont regroupées dans [design/](design/README.md). Le README principal décrit le fonctionnement actuel.
 
 ## Lancer
 
@@ -57,6 +61,8 @@ npm test
 npm run check:repo
 ```
 
+Voir le [guide des tests](../tests/README.md) pour les prérequis et les diagnostics manuels. Les commandes se lancent depuis la racine du projet.
+
 Les tests Node couvrent notamment les API, les droits des commandes, les requêtes de morceaux, les canaux stéréo, la qualité numérique Opus, les débits, la compatibilité PCM, les files d’attente et les horloges. Les captures système sont simulées dans les tests d’API.
 
 ### Tests navigateur et Windows
@@ -66,10 +72,10 @@ Les scripts correspondants utilisent Playwright et Microsoft Edge. Pour un essai
 ```powershell
 npm install --prefix artifacts/test-tools --no-package-lock --no-audit --no-fund playwright
 $env:PLAYWRIGHT_MODULE = (Join-Path $PWD 'artifacts/test-tools/node_modules/playwright')
-node tests/legal-browser.js
-node tests/opus-browser.js
-node tests/desktop-browser.js
-node tests/listener-browser.js
+node tests/e2e/legal-browser.js
+node tests/e2e/opus-browser.js
+node tests/e2e/desktop-browser.js
+node tests/e2e/listener-browser.js
 ```
 
 Ces scripts créent leurs profils sous `artifacts/` et ferment les serveurs qu’ils démarrent. Le test Opus navigateur contacte l’adresse LAN du PC. Le test desktop remplace le contenu du site YouTube par une page de test, tout en utilisant les véritables vues et la capture audio Electron. Les essais de capture réelle sont à exécuter volontairement : ils peuvent utiliser la sortie audio du PC.
@@ -77,13 +83,13 @@ Ces scripts créent leurs profils sous `artifacts/` et ferment les serveurs qu�
 Après compilation :
 
 ```powershell
-node tests/packaged-browser.js
-node tests/portable-browser.js
-node tests/portable-listener.js
-node tests/lite-browser.js
+node tests/e2e/packaged-browser.js
+node tests/e2e/portable-browser.js
+node tests/e2e/portable-listener.js
+node tests/e2e/lite-browser.js
 ```
 
-Le lecteur léger doit être compilé avant `tests/lite-browser.js`, et WebView2 doit être disponible. Les simulations et tests de planification ne remplacent pas une écoute sur plusieurs appareils et une mesure acoustique si un alignement précis est requis.
+Le lecteur léger doit être compilé avant `tests/e2e/lite-browser.js`, et WebView2 doit être disponible. Les simulations et tests de planification ne remplacent pas une écoute sur plusieurs appareils et une mesure acoustique si un alignement précis est requis.
 
 ## Compiler sous Windows
 

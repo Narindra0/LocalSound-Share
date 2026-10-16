@@ -46,7 +46,7 @@ node_modules/
 *.aac
 *.ogg
 *.opus
-!/test_tone.wav
+!/tests/fixtures/test-tone.wav
 
 # Local credentials and signing material
 .env

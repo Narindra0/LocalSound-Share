@@ -18,7 +18,6 @@ files:
   - "scripts/media-info.ps1"
   - "package.json"
   - "LICENSE.txt"
-  - "!test_*.js"
 win:
   icon: public/branding/icon.ico
   target:
