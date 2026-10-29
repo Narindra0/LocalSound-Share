@@ -63,6 +63,9 @@ function createApp({ Capture, Encoder = Mp3Encoder, mediaInfo = null, youtubeFet
   // Les recevoir ici laisse le gestionnaire HTTP fermer proprement l'application.
   wss.on('error', err => { capture.error = err.message; });
   const isLocal = address => ['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(address);
+  // Une app mobile du même réseau peut piloter la lecture (play/pause/stop),
+  // mais pas gérer les fichiers ni les demandes : ces routes restent locales.
+  const isPrivateNetwork = address => typeof address === 'string' && /^(?:10\.|192\.168\.|172\.(?:1[6-9]|2[0-9]|3[0-2])\.|::ffff:(?:10\.|192\.168\.|172\.(?:1[6-9]|2[0-9]|3[0-2])\.))/.test(address);
   function automaticMetadata() {
     const detected = selectMetadata(mediaSnapshot, sourceKind);
     if (youtubeMetadata && (!detected.track || [youtubeMetadata.detectedTitle, youtubeMetadata.title].includes(detected.track.title))) {
@@ -350,11 +353,7 @@ function createApp({ Capture, Encoder = Mp3Encoder, mediaInfo = null, youtubeFet
     preparedFiles.delete(token);
     selectSource('file'); track = { name: name.slice(0, 200), pcm: req.body, title:info?.title, artist:info?.artist, artwork:info?.artwork }; broadcastState(); res.json(status());
   });
-  app.post('/api/control', (req, res, next) => {
-    if (!isLocal(req.socket.remoteAddress)) return res.status(403).json({ error: 'Commandes réservées au PC hôte : ouvrez la console sur localhost.' });
-    if (req.headers.origin && req.headers.origin !== `http://${req.headers.host}`) return res.status(403).json({ error: 'Origine non autorisée.' });
-    next();
-  }, express.json({ limit: '1kb' }), (req, res) => {
+  app.post('/api/control', hostOnly, express.json({ limit: '1kb' }), (req, res) => {
     try { control(req.body?.action); res.json(status()); }
     catch (err) { res.status(400).json({ error: err.message }); }
   });
@@ -402,7 +401,7 @@ function createApp({ Capture, Encoder = Mp3Encoder, mediaInfo = null, youtubeFet
         ws.wantsAudio = msg.type === 'listen'; broadcastState();
       } else if (msg.type === 'control') {
         try {
-          if (!isLocal(req.socket.remoteAddress)) throw new Error('Commandes réservées au PC hôte.');
+          if (!isLocal(req.socket.remoteAddress) && !isPrivateNetwork(req.socket.remoteAddress)) throw new Error('Commandes réservées au PC hôte ou à son réseau local.');
           control(msg.action);
         } catch (err) { ws.send(JSON.stringify({ type: 'error', message: err.message })); }
       }

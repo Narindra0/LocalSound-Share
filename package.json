@@ -11,6 +11,7 @@
     "desktop": "node scripts/desktop.js",
     "test": "node --test tests/node/*.test.js",
     "notices": "node scripts/third-party-notices.js",
+    "mobile:web": "node scripts/sync-mobile-web.js",
     "build:exe": "npm run notices && electron-builder --win portable --x64",
     "desktop:listener": "node scripts/listener.js",
     "build:listener": "npm run notices && node scripts/prepare-listener.js && electron-builder --config electron-builder-listener.yml --win portable --x64",
