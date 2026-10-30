@@ -47,7 +47,7 @@ class _ConnectScreenState extends State<ConnectScreen> {
   Widget build(BuildContext context) {
     final style = RoomStyle.of(
       palette: widget.controller.state.appearance['palette'] as String?,
-      isDark: MediaQuery.platformBrightnessOf(context) == Brightness.dark,
+      isDark: Theme.of(context).brightness == Brightness.dark,
     );
     return Scaffold(
       body: RoomBackdrop(
@@ -78,6 +78,12 @@ class _ConnectScreenState extends State<ConnectScreen> {
                     _HostCard(style: style, onHost: widget.onHost),
                     const SizedBox(height: 26),
                     _Footnotes(style: style),
+                    const SizedBox(height: 22),
+                    AppearanceSwitch(
+                      style: style,
+                      mode: widget.controller.themeMode,
+                      onChanged: widget.controller.setThemeMode,
+                    ),
                   ],
                 ),
               ),

@@ -1,5 +1,20 @@
 import 'package:flutter/material.dart';
 
+/// Apparence choisie par l'utilisateur, mémorisée entre deux lancements.
+///
+/// `system` suit le réglage du téléphone ; les deux autres le forcent, ce qui
+/// permet de garder le lecteur sombre même en plein jour.
+enum AppearanceMode { system, light, dark }
+
+/// Traduit le choix en clair/sombre, sachant ce que dit le système.
+extension AppearanceModeBrightness on AppearanceMode {
+  bool isDark(Brightness platform) => switch (this) {
+    AppearanceMode.system => platform == Brightness.dark,
+    AppearanceMode.light => false,
+    AppearanceMode.dark => true,
+  };
+}
+
 /// Ambiances du salon, reprises de `public/themes.css`.
 ///
 /// L'hôte choisit un **thème** (l'objet affiché : vinyle, cassette, CD, bande,

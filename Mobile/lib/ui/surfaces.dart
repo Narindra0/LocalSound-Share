@@ -39,6 +39,106 @@ class RoomBackdrop extends StatelessWidget {
 }
 
 /// Petite étiquette en capitales espacées : « ADRESSE DU SALON ».
+/// Trois façons de choisir l'apparence : suivre le système, clair, sombre.
+///
+/// Le choix est gardé par le contrôleur ; ce widget ne fait que l'afficher.
+class AppearanceSwitch extends StatelessWidget {
+  const AppearanceSwitch({
+    super.key,
+    required this.style,
+    required this.mode,
+    required this.onChanged,
+  });
+
+  final RoomStyle style;
+  final AppearanceMode mode;
+  final ValueChanged<AppearanceMode> onChanged;
+
+  static const List<(AppearanceMode, IconData, String)> _options = [
+    (AppearanceMode.system, Icons.brightness_auto_outlined, 'Auto'),
+    (AppearanceMode.light, Icons.light_mode_outlined, 'Clair'),
+    (AppearanceMode.dark, Icons.dark_mode_outlined, 'Sombre'),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: Color.alphaBlend(
+          Colors.black.withValues(alpha: style.isDark ? 0.22 : 0.04),
+          style.surface,
+        ),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: style.accentText.withValues(alpha: 0.16)),
+      ),
+      child: Row(
+        children: [
+          for (final (value, icon, label) in _options)
+            Expanded(
+              child: _AppearanceOption(
+                style: style,
+                selected: value == mode,
+                icon: icon,
+                label: label,
+                onTap: () => onChanged(value),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AppearanceOption extends StatelessWidget {
+  const _AppearanceOption({
+    required this.style,
+    required this.selected,
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  final RoomStyle style;
+  final bool selected;
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = selected ? style.accentText : style.muted;
+    return InkWell(
+      borderRadius: BorderRadius.circular(10),
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 160),
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        decoration: BoxDecoration(
+          color: style.accent.withValues(
+            alpha: selected ? (style.isDark ? 0.26 : 0.12) : 0,
+          ),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Column(
+          children: [
+            Icon(icon, size: 18, color: color),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 11.5,
+                fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                color: color,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class RoomOverline extends StatelessWidget {
   const RoomOverline(this.text, {super.key, required this.style, this.color});
 

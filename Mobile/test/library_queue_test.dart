@@ -12,6 +12,45 @@ Song song(int id, {String? artist, int durationMs = 0}) => Song(
 );
 
 void main() {
+  group('recherche', () {
+    final songs = [
+      Song(
+        id: 1,
+        title: 'Café du coin',
+        artist: 'Éléonore',
+        album: 'Été',
+        uri: 'content://media/external/audio/media/1',
+      ),
+      Song(
+        id: 2,
+        title: 'Nuit blanche',
+        artist: 'Les Œillets',
+        album: 'Hiver',
+        uri: 'content://media/external/audio/media/2',
+      ),
+    ];
+
+    test('trouve par titre sans accent ni casse', () {
+      expect(filterSongs(songs, 'cafe').map((song) => song.id), [1]);
+      expect(filterSongs(songs, 'CAFÉ').map((song) => song.id), [1]);
+    });
+
+    test('trouve par artiste et par album', () {
+      expect(filterSongs(songs, 'eleonore').map((song) => song.id), [1]);
+      expect(filterSongs(songs, 'oeillets').map((song) => song.id), [2]);
+      expect(filterSongs(songs, 'hiver').map((song) => song.id), [2]);
+    });
+
+    test('une requête vide ou blanche rend toute la bibliothèque', () {
+      expect(filterSongs(songs, '').length, 2);
+      expect(filterSongs(songs, '   ').length, 2);
+    });
+
+    test('aucun morceau ne correspond', () {
+      expect(filterSongs(songs, 'jazz'), isEmpty);
+    });
+  });
+
   group('file de lecture', () {
     test('vide : aucun morceau courant et aucun suivant', () {
       final queue = LibraryQueue();

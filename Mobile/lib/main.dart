@@ -25,8 +25,19 @@ class LocalSoundApp extends StatefulWidget {
   State<LocalSoundApp> createState() => _LocalSoundAppState();
 }
 
-class _LocalSoundAppState extends State<LocalSoundApp> {
+class _LocalSoundAppState extends State<LocalSoundApp>
+    with WidgetsBindingObserver {
   HostController? _host;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  /// En mode « auto », suivre le passage clair/sombre du téléphone.
+  @override
+  void didChangePlatformBrightness() => setState(() {});
 
   void _openHost(HostMode mode) {
     if (_host != null) return;
@@ -47,6 +58,7 @@ class _LocalSoundAppState extends State<LocalSoundApp> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _host?.dispose();
     super.dispose();
   }
@@ -59,9 +71,9 @@ class _LocalSoundAppState extends State<LocalSoundApp> {
       builder: (context, _) {
         final style = RoomStyle.of(
           palette: controller.state.appearance['palette'] as String?,
-          isDark:
-              WidgetsBinding.instance.platformDispatcher.platformBrightness ==
-              Brightness.dark,
+          isDark: controller.themeMode.isDark(
+            WidgetsBinding.instance.platformDispatcher.platformBrightness,
+          ),
         );
         final host = _host;
         return MaterialApp(

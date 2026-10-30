@@ -41,8 +41,9 @@ encodeur Opus demanderait une dépendance native.
 ### Source : la musique du téléphone
 
 `MusicLibrary.kt` lit la bibliothèque `MediaStore` (titre, artiste, album,
-durée) hors du fil principal. La feuille « Ma musique » liste les morceaux ;
-un appui lance la lecture. Le fichier choisi est décodé par
+durée) hors du fil principal. La feuille « Ma musique » liste les morceaux et
+les filtre par titre, artiste ou album (`filterSongs`, insensible à la casse et
+aux accents : « cafe » trouve « Café ») ; un appui lance la lecture. Le fichier choisi est décodé par
 `MediaExtractor` + `MediaCodec` (MP3, AAC/M4A, FLAC, OGG/Vorbis, Opus, WAV…) et
 rééchantillonné en stéréo 48 kHz 16 bits : le même PCM alimente l'`AudioTrack`
 du téléphone **et** les auditeurs, qui entendent donc la même chose au même
@@ -125,6 +126,11 @@ En sombre, même structure avec deux jetons distincts : un **charbon chaud**
 pour le fond, une surface plus claire pour les cartes, et `accentText` —
 l'accent éclairci — pour les icônes et libellés, parce que `accentDark`
 disparaissait sur le noir.
+
+Le choix clair / sombre / auto se fait avec le sélecteur `AppearanceSwitch`
+(bas de l'écran d'entrée, feuille de réglages du lecteur). Il est gardé dans
+`appearanceMode` par `RoomController`, donc il survit au redémarrage ; en mode
+`auto`, l'app suit le réglage du téléphone et se redessine quand il change.
 `ui/surfaces.dart` porte ces briques (fond, carte, étiquette, pastille d'état,
 billet pointillé, vumètre, vinyle dessiné) et les quatre écrans s'y appuient :
 

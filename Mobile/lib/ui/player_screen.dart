@@ -63,7 +63,7 @@ class _PlayerScreenState extends State<PlayerScreen>
         final session = widget.controller.session;
         final style = RoomStyle.of(
           palette: state.appearance['palette'] as String?,
-          isDark: MediaQuery.platformBrightnessOf(context) == Brightness.dark,
+          isDark: Theme.of(context).brightness == Brightness.dark,
         );
         final roomTheme = themeFor(state.appearance['theme'] as String?);
         return Scaffold(
@@ -691,7 +691,7 @@ class _SettingsSheet extends StatelessWidget {
         final player = controller.player;
         final style = RoomStyle.of(
           palette: controller.state.appearance['palette'] as String?,
-          isDark: MediaQuery.platformBrightnessOf(context) == Brightness.dark,
+          isDark: Theme.of(context).brightness == Brightness.dark,
         );
         return SingleChildScrollView(
           padding: EdgeInsets.fromLTRB(
@@ -746,7 +746,15 @@ class _SettingsSheet extends StatelessWidget {
                 label: '${session.calibrationMs.round()} ms',
                 onChanged: controller.setCalibration,
               ),
-              const SizedBox(height: 6),
+              const SizedBox(height: 14),
+              RoomOverline('apparence', style: style),
+              const SizedBox(height: 8),
+              AppearanceSwitch(
+                style: style,
+                mode: controller.themeMode,
+                onChanged: controller.setThemeMode,
+              ),
+              const SizedBox(height: 14),
               DashedRule(color: style.accent.withValues(alpha: 0.25)),
               const SizedBox(height: 6),
               _StatRow(

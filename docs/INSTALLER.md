@@ -37,7 +37,7 @@ Sorties ignorées par Git :
 - `release/setup/LocalSound-Setup-0.1.5-Windows-x64.exe`
 - `release/setup/LocalSound-Setup-0.1.5-Windows-x64.exe.sha256`
 
-Le manifeste [installer/payloads.json](../installer/payloads.json) épingle la version, les noms, tailles et empreintes des trois EXE. Lors d’une nouvelle version, publier et vérifier les applications, puis actualiser ce manifeste avant de compiler et de publier le setup. Une empreinte ne doit pas être récupérée dynamiquement pendant l’installation : elle est embarquée dans le setup. Le téléchargement HTTPS ou la vérification échoués interrompent la préparation avant la copie des applications.
+Le manifeste [installer/payloads.json](../installer/payloads.json) épingle la version, les noms, tailles et empreintes des trois EXE. Lors d’une nouvelle version, publier et vérifier les applications, puis actualiser ce manifeste avant de compiler et de publier le setup. Le manifeste porte la version de la release qu’il installe : le nom du setup et sa version affichée en découlent, et il n’est pas tenu de suivre `package.json`, qui peut déjà préparer la version suivante. Une empreinte ne doit pas être récupérée dynamiquement pendant l’installation : elle est embarquée dans le setup. Le téléchargement HTTPS ou la vérification échoués interrompent la préparation avant la copie des applications.
 
 Le texte des conditions est généré depuis `LICENSE.txt` et les sections CGU, confidentialité et mentions légales de `public/about.html`, pour éviter une seconde version éditée à la main.
 

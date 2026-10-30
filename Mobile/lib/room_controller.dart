@@ -5,6 +5,7 @@ import 'audio/pcm_player.dart';
 import 'core/requests.dart';
 import 'core/state.dart';
 import 'session.dart';
+import 'ui/appearance.dart';
 
 /// Assemble le transport ([Session]) et le lecteur ([PcmPlayer]) et garde les
 /// préférences de l'auditeur : dernière adresse, volume, calibration, prénom.
@@ -19,6 +20,7 @@ class RoomController extends ChangeNotifier {
   static const _kVolume = 'volume';
   static const _kCalibration = 'calibration';
   static const _kName = 'requestName';
+  static const _kAppearance = 'appearanceMode';
 
   final PcmPlayer _player = PcmPlayer();
   Session _session = Session(serverUrl: _defaultServer);
@@ -26,6 +28,7 @@ class RoomController extends ChangeNotifier {
   String _listenerName = '';
   bool _busy = false;
   String? _notice;
+  AppearanceMode _appearance = AppearanceMode.system;
 
   static const _defaultServer = 'http://192.168.1.10:3000';
 
@@ -35,6 +38,9 @@ class RoomController extends ChangeNotifier {
   String get listenerName => _listenerName;
   bool get busy => _busy;
   String? get notice => _notice;
+
+  /// Clair, sombre, ou comme le téléphone. Le choix survit au redémarrage.
+  AppearanceMode get themeMode => _appearance;
 
   HostState get state => _session.state;
   RequestsSnapshot get requests => _session.requests;
@@ -47,6 +53,11 @@ class RoomController extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     _serverUrl = prefs.getString(_kServer) ?? _defaultServer;
     _listenerName = prefs.getString(_kName) ?? '';
+    final saved = prefs.getString(_kAppearance);
+    _appearance = AppearanceMode.values.firstWhere(
+      (mode) => mode.name == saved,
+      orElse: () => AppearanceMode.system,
+    );
     await _player.setVolume(prefs.getDouble(_kVolume) ?? 0.9);
     _openSession(_serverUrl);
     _session.setCalibration(prefs.getDouble(_kCalibration) ?? 0);
@@ -117,6 +128,14 @@ class RoomController extends ChangeNotifier {
   }
 
   void setListenerName(String value) => _listenerName = value.trim();
+
+  Future<void> setThemeMode(AppearanceMode mode) async {
+    if (_appearance == mode) return;
+    _appearance = mode;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_kAppearance, mode.name);
+  }
 
   Future<void> submitRequest({required String title, String url = ''}) async {
     final prefs = await SharedPreferences.getInstance();

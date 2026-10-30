@@ -68,7 +68,7 @@ class _RequestsScreenState extends State<RequestsScreen> {
       builder: (context, _) {
         final style = RoomStyle.of(
           palette: widget.controller.state.appearance['palette'] as String?,
-          isDark: MediaQuery.platformBrightnessOf(context) == Brightness.dark,
+          isDark: Theme.of(context).brightness == Brightness.dark,
         );
         final snapshot = widget.controller.requests;
         final active = snapshot.activeItems;

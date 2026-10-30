@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:localsound_mobile/host/host_controller.dart';
 import 'package:localsound_mobile/room_controller.dart';
+import 'package:localsound_mobile/ui/appearance.dart';
 import 'package:localsound_mobile/ui/connect_screen.dart';
 
 void main() {
@@ -44,5 +46,29 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Le micro du téléphone'));
     expect(hostRequested, HostMode.mic);
+  });
+
+  testWidgets('le sélecteur d’apparence change de mode et le mémorise', (
+    tester,
+  ) async {
+    SharedPreferences.setMockInitialValues({});
+    final controller = RoomController();
+    addTearDown(controller.dispose);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: ConnectScreen(controller: controller, onHost: (_) {}),
+      ),
+    );
+    expect(controller.themeMode, AppearanceMode.system);
+
+    await tester.ensureVisible(find.text('Sombre'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Sombre'));
+    await tester.pumpAndSettle();
+
+    expect(controller.themeMode, AppearanceMode.dark);
+    final prefs = await SharedPreferences.getInstance();
+    expect(prefs.getString('appearanceMode'), 'dark');
   });
 }

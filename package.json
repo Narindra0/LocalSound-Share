@@ -1,6 +1,6 @@
 {
   "name": "localsound-share",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Diffusion audio locale (WASAPI loopback) vers les navigateurs du réseau local",
   "main": "server.js",
   "engines": {

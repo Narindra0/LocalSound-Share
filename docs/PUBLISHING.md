@@ -54,9 +54,25 @@ Une authentification GitHub doit être configurée pour l’envoi. Si `origin` e
 
 Voir la [documentation officielle GitHub](https://docs.github.com/en/migrations/importing-source-code/using-the-command-line-to-import-source-code/adding-locally-hosted-code-to-github).
 
-## 4. Publier les exécutables dans Releases
+## 4. Publier une version
 
 Les exécutables et les SDK ne font pas partie de l’historique des sources. Une GitHub Release permet de joindre les fichiers compilés et leurs instructions séparément du code.
+
+### Publication automatique
+
+Le workflow [release.yml](../.github/workflows/release.yml) construit et publie la Release dès qu’un tag `v*` est poussé : contrôles du dépôt, tests Node, les trois EXE Windows (`build:exe`, `build:listener`, `build:listener:lite`), tests et APK Android, puis `SHA256SUMS.txt`. Le corps de la Release reprend la section correspondante de [CHANGELOG.md](../CHANGELOG.md) ; le workflow échoue si `package.json` et le tag ne portent pas la même version.
+
+```powershell
+# 1. Mettre la même version dans package.json et dans CHANGELOG.md
+# 2. Committer, taguer, pousser
+git tag -a v0.1.6 -m "LocalSound Share 0.1.6"
+git push origin main
+git push origin v0.1.6
+```
+
+Le workflow peut aussi être relancé à la main (onglet Actions → « Publier une version » → Run workflow) : il relit la version dans `package.json` et réécrit la Release du tag correspondant. Le setup en ligne reste hors du workflow : il se compile après publication et vérification des EXE (voir [INSTALLER.md](INSTALLER.md)).
+
+### Publication manuelle, en secours
 
 1. Compiler les éditions nécessaires selon [DEVELOPMENT.md](DEVELOPMENT.md).
 2. Vérifier la version de `package.json`, le changelog et les pages À propos. Si la version change, reconstruire toutes les éditions à distribuer.
@@ -68,7 +84,7 @@ Les exécutables et les SDK ne font pas partie de l’historique des sources. Un
    git push origin v0.1.5
    ```
 
-5. Dans GitHub, créer une Release à partir de ce tag et reprendre les changements de [CHANGELOG.md](../CHANGELOG.md).
+5. En secours seulement : créer la Release à la main depuis ce tag, en reprenant les changements de [CHANGELOG.md](../CHANGELOG.md).
 6. Joindre les exécutables souhaités, un fichier d’instructions et leurs empreintes SHA-256. Pour 0.1.5 :
 
    - `release/LocalSound-Share-0.1.5-Windows-x64.exe`
@@ -83,7 +99,7 @@ Get-FileHash -Algorithm SHA256 -LiteralPath release/LocalSound-Share-0.1.5-Windo
 
 Mentionner dans les instructions : Windows x64, absence de signature numérique, besoin éventuel de WebView2 pour le lecteur léger, hôte minimum 0.1.5 et limite de synchronisation du son système brut. Le Runtime partagé et les caches ne sont pas compris dans le poids de l’EXE léger.
 
-Les workflows fournis exécutent les contrôles et les tests ; ils ne publient pas de Release. Consulter également la [documentation officielle des Releases](https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository).
+Le workflow `ci.yml` exécute les contrôles et les tests à chaque envoi ; `release.yml` publie la Release. Consulter également la [documentation officielle des Releases](https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository).
 
 Le [setup en ligne](INSTALLER.md) se compile après publication et vérification des EXE auxquels son manifeste fait référence. Joindre son EXE, son fichier `.sha256` et ses instructions à la release. Le tag `setup-v0.1.5` identifie les sources de cet assistant ; les EXE des applications restent ceux du tag `v0.1.5`.
 

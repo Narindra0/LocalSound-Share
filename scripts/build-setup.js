@@ -4,17 +4,21 @@ const path = require('node:path');
 const crypto = require('node:crypto');
 const { spawnSync } = require('node:child_process');
 const root = path.resolve(__dirname, '..');
-const pkg = require('../package.json');
 const manifest = require('../installer/payloads.json');
 const stage = path.join(root, 'artifacts', 'setup');
 const output = path.join(root, 'release', 'setup');
 
 function validateManifest(data) {
-  if (data.version !== pkg.version || data.baseUrl !== `https://github.com/Narindra0/LocalSound-Share/releases/download/v${pkg.version}/`) throw new Error('Version ou adresse des téléchargements incohérente.');
+  // Le manifeste désigne la release que le setup installe, avec les empreintes
+  // des fichiers réellement publiés : il porte donc sa propre version et ne
+  // suit pas `package.json`. Il s'actualise après publication, puis le setup
+  // se compile à partir de ces fichiers vérifiés.
+  const version = data.version;
+  if (!/^\d+\.\d+\.\d+$/.test(version) || data.baseUrl !== `https://github.com/Narindra0/LocalSound-Share/releases/download/v${version}/`) throw new Error('Version ou adresse des téléchargements incohérente.');
   if (data.editions?.length !== 3 || new Set(data.editions.map(e => e.id)).size !== 3) throw new Error('Les trois éditions sont nécessaires.');
   for (const edition of data.editions) {
     if (!['host', 'lite', 'classic'].includes(edition.id) || !/^[a-zA-Z0-9.-]+\.exe$/.test(edition.file) || !/^[a-zA-Z0-9 .-]+\.exe$/.test(edition.installedName) || !/^[a-f0-9]{64}$/.test(edition.sha256) || !Number.isSafeInteger(edition.bytes) || edition.bytes <= 0) throw new Error('Édition invalide : ' + edition.id);
-    if (!edition.file.includes(`-${pkg.version}-Windows-x64.exe`)) throw new Error('Version de fichier incohérente.');
+    if (!edition.file.includes(`-${version}-Windows-x64.exe`)) throw new Error('Version de fichier incohérente.');
   }
 }
 
@@ -60,7 +64,7 @@ function prepare() {
     'Imaginé et développé par Ranjalahy Narindra. Projet personnel gratuit — Madagascar.',
     'ranjalahy.narindraa@gmail.com · 0328814081\nhttps://narindraportfolio.netlify.app/',
     'Choisissez Hôte pour diffuser, Auditeur Léger pour écouter avec WebView2, ou Auditeur classique pour disposer du moteur Electron embarqué. Plusieurs éditions peuvent être sélectionnées.',
-    'Seules les applications choisies sont téléchargées depuis la release GitHub 0.1.5, puis contrôlées par SHA-256. Internet est requis pendant l’installation.',
+    'Seules les applications choisies sont téléchargées depuis la release GitHub ' + manifest.version + ', puis contrôlées par SHA-256. Internet est requis pendant l’installation.',
     'Installation pour votre compte Windows, sans droits administrateur. Les applications et ce setup ne sont pas signés numériquement.',
     'L’Auditeur Léger demande .NET Framework 4.6.2+ et WebView2. Si WebView2 manque, une option propose la page Microsoft à la fin. Aucun composant Microsoft n’est installé automatiquement.',
     'Les préférences et les sessions YouTube restent dans vos dossiers utilisateur. La désinstallation retire les applications installées et leurs raccourcis ; les données personnelles sont conservées.'
@@ -68,7 +72,7 @@ function prepare() {
   bitmap(path.join(stage, 'wizard.bmp'), 164, 314);
   bitmap(path.join(stage, 'wizard-small.bmp'), 55, 55, true);
   const quote = value => '"' + value.replaceAll('"', '""') + '"';
-  const defines = { AppVersion: pkg.version, BrandImage: path.join(stage, 'wizard.bmp'), BrandSmallImage: path.join(stage, 'wizard-small.bmp'), BrandIcon: path.join(root, 'public/branding/icon.ico'), ConditionsFile: path.join(stage, 'conditions.txt'), WelcomeFile: path.join(stage, 'welcome.txt'), OutputPath: output };
+  const defines = { AppVersion: manifest.version, BrandImage: path.join(stage, 'wizard.bmp'), BrandSmallImage: path.join(stage, 'wizard-small.bmp'), BrandIcon: path.join(root, 'public/branding/icon.ico'), ConditionsFile: path.join(stage, 'conditions.txt'), WelcomeFile: path.join(stage, 'welcome.txt'), OutputPath: output };
   fs.writeFileSync(path.join(stage, 'payloads.iss'), Object.entries(defines).map(([key, value]) => '#define ' + key + ' ' + quote(value)).join('\n'));
   fs.writeFileSync(path.join(stage, 'files.iss'), manifest.editions.map(e => `Source: "{tmp}\\${e.file}"; DestDir: "{app}"; DestName: "${e.installedName}"; Components: ${e.id}; ExternalSize: ${e.bytes}; Flags: external ignoreversion`).join('\n'));
   fs.writeFileSync(path.join(stage, 'downloads.iss'), manifest.editions.map(e => `if WizardIsComponentSelected('${e.id}') then DownloadPage.Add('${manifest.baseUrl}${e.file}', '${e.file}', '${e.sha256}');`).join('\n'));
@@ -83,7 +87,7 @@ function build() {
   const result = spawnSync(compiler, [path.join(stage, 'LocalSound.iss')], { cwd: stage, stdio: 'inherit', windowsHide: true });
   if (result.error) throw result.error;
   if (result.status !== 0) throw new Error('Compilation du setup échouée.');
-  const name = `LocalSound-Setup-${pkg.version}-Windows-x64.exe`, file = path.join(output, name);
+  const name = `LocalSound-Setup-${manifest.version}-Windows-x64.exe`, file = path.join(output, name);
   const digest = crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
   fs.writeFileSync(file + '.sha256', digest + '  ' + name + '\n');
   console.log(JSON.stringify({ setup: file, bytes: fs.statSync(file).size, sha256: digest }, null, 2));

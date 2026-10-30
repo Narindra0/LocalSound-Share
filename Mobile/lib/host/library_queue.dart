@@ -51,6 +51,55 @@ class Song {
   }
 }
 
+/// Minuscules sans accents : « cafe » doit trouver « Café ».
+String _fold(String value) {
+  const folded = {
+    'à': 'a',
+    'â': 'a',
+    'ä': 'a',
+    'á': 'a',
+    'å': 'a',
+    'ç': 'c',
+    'é': 'e',
+    'è': 'e',
+    'ê': 'e',
+    'ë': 'e',
+    'í': 'i',
+    'î': 'i',
+    'ï': 'i',
+    'ó': 'o',
+    'ô': 'o',
+    'ö': 'o',
+    'õ': 'o',
+    'ú': 'u',
+    'ù': 'u',
+    'û': 'u',
+    'ü': 'u',
+    'ñ': 'n',
+    'ÿ': 'y',
+    'æ': 'ae',
+    'œ': 'oe',
+  };
+  final buffer = StringBuffer();
+  for (final rune in value.toLowerCase().runes) {
+    final char = String.fromCharCode(rune);
+    buffer.write(folded[char] ?? char);
+  }
+  return buffer.toString();
+}
+
+/// Morceaux qui répondent à [query] : titre, artiste et album, sans tenir
+/// compte de la casse ni des accents. Une recherche vide rend tout.
+List<Song> filterSongs(List<Song> songs, String query) {
+  final needle = _fold(query.trim());
+  if (needle.isEmpty) return List<Song>.of(songs);
+  return [
+    for (final song in songs)
+      if (_fold('${song.title} ${song.artist} ${song.album}').contains(needle))
+        song,
+  ];
+}
+
 class LibraryQueue {
   LibraryQueue([List<Song> songs = const []]) : _songs = List<Song>.of(songs);
 

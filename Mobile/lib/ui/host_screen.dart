@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:localsound_mobile/host/host_controller.dart';
+import 'package:localsound_mobile/host/library_queue.dart';
 import 'package:localsound_mobile/ui/appearance.dart';
 import 'package:localsound_mobile/ui/surfaces.dart';
 
@@ -78,7 +79,7 @@ class _HostScreenState extends State<HostScreen> with TickerProviderStateMixin {
   Future<void> _openLibrary() async {
     final style = RoomStyle.of(
       palette: 'terracotta',
-      isDark: MediaQuery.platformBrightnessOf(context) == Brightness.dark,
+      isDark: Theme.of(context).brightness == Brightness.dark,
     );
     await showModalBottomSheet<void>(
       context: context,
@@ -95,7 +96,7 @@ class _HostScreenState extends State<HostScreen> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     final style = RoomStyle.of(
       palette: 'terracotta',
-      isDark: MediaQuery.platformBrightnessOf(context) == Brightness.dark,
+      isDark: Theme.of(context).brightness == Brightness.dark,
     );
     return AnimatedBuilder(
       animation: Listenable.merge([widget.controller, _pulse]),
@@ -726,24 +727,48 @@ class _DiscButton extends StatelessWidget {
 }
 
 /// Bibliothèque du téléphone, en feuille : un appui lance le morceau.
-class _LibrarySheet extends StatelessWidget {
+///
+/// Le champ de recherche filtre titre, artiste et album ; il ne touche pas à la
+/// bibliothèque native, qui reste la seule source des morceaux.
+class _LibrarySheet extends StatefulWidget {
   const _LibrarySheet({required this.controller});
 
   final HostController controller;
 
   @override
+  State<_LibrarySheet> createState() => _LibrarySheetState();
+}
+
+class _LibrarySheetState extends State<_LibrarySheet> {
+  final TextEditingController _query = TextEditingController();
+
+  @override
+  void dispose() {
+    _query.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-      animation: controller,
+      animation: widget.controller,
       builder: (context, _) {
+        final controller = widget.controller;
         final style = RoomStyle.of(
           palette: 'terracotta',
-          isDark: MediaQuery.platformBrightnessOf(context) == Brightness.dark,
+          isDark: Theme.of(context).brightness == Brightness.dark,
         );
         final songs = controller.songs;
+        final visible = filterSongs(songs, _query.text);
         final current = controller.currentSong;
+        // Le clavier prend la moitié de l'écran : la feuille se raccourcit
+        // plutôt que de laisser la liste passer dessous.
+        final screenHeight = MediaQuery.sizeOf(context).height;
+        final height =
+            (screenHeight * 0.72 - MediaQuery.viewInsetsOf(context).bottom)
+                .clamp(240.0, screenHeight * 0.9);
         return SizedBox(
-          height: MediaQuery.sizeOf(context).height * 0.72,
+          height: height,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -771,6 +796,8 @@ class _LibrarySheet extends StatelessWidget {
                           Text(
                             songs.isEmpty
                                 ? 'Aucun morceau trouvé.'
+                                : visible.isEmpty
+                                ? 'Aucun résultat.'
                                 : 'Choisis un morceau.',
                             style: TextStyle(
                               fontSize: 19,
@@ -795,21 +822,61 @@ class _LibrarySheet extends StatelessWidget {
                   ],
                 ),
               ),
+              if (songs.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
+                  child: TextField(
+                    controller: _query,
+                    onChanged: (_) => setState(() {}),
+                    textInputAction: TextInputAction.search,
+                    style: TextStyle(fontSize: 14, color: style.text),
+                    decoration: InputDecoration(
+                      isDense: true,
+                      hintText: 'Titre, artiste, album',
+                      prefixIcon: Icon(
+                        Icons.search_rounded,
+                        size: 20,
+                        color: style.muted,
+                      ),
+                      suffixIcon: _query.text.isEmpty
+                          ? null
+                          : IconButton(
+                              tooltip: 'Effacer la recherche',
+                              onPressed: () {
+                                _query.clear();
+                                setState(() {});
+                              },
+                              icon: Icon(
+                                Icons.close_rounded,
+                                size: 18,
+                                color: style.muted,
+                              ),
+                            ),
+                    ),
+                  ),
+                ),
               if (songs.isEmpty)
                 Expanded(
                   child: _EmptyLibrary(style: style, message: controller.error),
+                )
+              else if (visible.isEmpty)
+                Expanded(
+                  child: _EmptyLibrary(
+                    style: style,
+                    message: 'Aucun morceau pour « ${_query.text.trim()} ».',
+                  ),
                 )
               else
                 Expanded(
                   child: ListView.separated(
                     padding: const EdgeInsets.fromLTRB(10, 2, 10, 18),
-                    itemCount: songs.length,
+                    itemCount: visible.length,
                     separatorBuilder: (_, _) => Divider(
                       height: 1,
                       color: style.accent.withValues(alpha: 0.1),
                     ),
                     itemBuilder: (context, index) {
-                      final song = songs[index];
+                      final song = visible[index];
                       final selected = current != null && song.id == current.id;
                       final subtitle = [
                         if (song.subtitle.isNotEmpty) song.subtitle,

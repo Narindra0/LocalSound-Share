@@ -8,6 +8,14 @@
 - Exclusions Git, règles de fins de ligne, modèles d’issues/pull requests et CI Windows.
 - Contrôle des fichiers destinés au dépôt avant publication.
 
+## 0.1.6
+
+- Application Android : sélecteur d’apparence clair / sombre / auto mémorisé, appliqué à tous les écrans.
+- Mode sombre retravaillé : fond charbon, cartes distinctes, accents éclaircis pour les icônes et les libellés.
+- Recherche dans la bibliothèque du téléphone par titre, artiste ou album, sans tenir compte des accents.
+- Diffusion musique fluide : échéance des trames alignée sur une horloge audio continue, réserve de 260 ms.
+- Releases publiées automatiquement par GitHub Actions à chaque tag `v*` : EXE Windows, APK Android et empreintes SHA-256.
+
 ## 0.1.5
 
 - Partage synchronisé automatique à l’ouverture de YouTube intégré ; prévisualisation muette avant capture.
