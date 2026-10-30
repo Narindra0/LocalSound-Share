@@ -61,6 +61,11 @@ jobs:
         run: npm run build:listener
       - name: Compiler l’auditeur léger
         run: npm run build:listener:lite
+      - name: Installer Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
       - name: Installer Flutter
         uses: subosito/flutter-action@v2
         with:
